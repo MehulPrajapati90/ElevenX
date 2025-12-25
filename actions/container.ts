@@ -3,7 +3,7 @@
 import { currentUser } from "./auth";
 import { client } from "@/lib/db/pg-db";
 import { containers, containerfields } from "@/schema";
-import { CreateContainerContentType, CreateContainerType, DeleteContainer, DeleteContainerContent, UpdateContainerContentType, UpdateContainerType } from "@/types";
+import { CreateContainerContentType, CreateContainerType, DeleteContainer, DeleteContainerContent, GetContentbyContainerId, UpdateContainerContentType, UpdateContainerType } from "@/types";
 import { and, eq } from "drizzle-orm";
 
 // import {client} from "@/lib/db/neon-db";
@@ -203,6 +203,37 @@ export const createContainerContent = async ({ content, type, containerId }: Cre
         return {
             success: false,
             message: "failed to create container",
+        }
+    }
+};
+
+export const getContentbyContainerId = async ({ containerId }: GetContentbyContainerId) => {
+    try {
+        const { user } = await currentUser();
+
+        const getContent = await client.query.containerfields.findMany({
+            where: and(
+                eq(containerfields.userId, user!.id),
+                eq(containers.userId, containerId)
+            ),
+            orderBy: (containerfields, { desc }) => [desc(containerfields.createdAt)],
+            columns: {
+                containerId: true,
+                content: true,
+                fieldType: true,
+                createdAt: true
+            },
+        });
+
+        return {
+            success: true,
+            message: "Container deleted successfully",
+            containers: getContent
+        }
+    } catch (e) {
+        return {
+            success: false,
+            message: "failed to fetch container",
         }
     }
 };

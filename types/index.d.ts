@@ -2,12 +2,12 @@ import { fieldTypeEnum } from "@/schema";
 
 interface CreateContainerType {
     name: string;
-    image: string;
+    image?: string;
 }
 
 interface UpdateContainerType {
     name: string;
-    image: string;
+    image?: string;
     containerId: string;
 }
 
@@ -27,6 +27,10 @@ interface DeleteContainer {
     containerId: string
 }
 
-interface DeleteContainerContent { 
+interface DeleteContainerContent {
     containerContentId: string
+}
+
+interface GetContentbyContainerId {
+    containerId: string
 }
