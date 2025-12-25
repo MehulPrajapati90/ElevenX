@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, uuid, pgEnum } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -73,9 +73,81 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const fieldTypeEnum = pgEnum("field_type", [
+  "IMAGE",
+  "VIDEO",
+  "TWITTER",
+  "YOUTUBE",
+  "INSTAGRAM",
+  "MISCELLANEOUS",
+]);
+
+export const containers = pgTable("containers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name"),
+  image: text("image"),
+
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const containerfields = pgTable("containerfield", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  fieldType: fieldTypeEnum("field_type").notNull().default("MISCELLANEOUS"),
+  content: text("url"), // value - basically what is being stored here
+
+  containerId: uuid("container_id")
+    .notNull()
+    .references(() => containers.id, { onDelete: "cascade" }),
+
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+}, (table) => ({
+  containerFieldTypeIdx: index("container_field_type_idx").on(
+    table.containerId,
+    table.fieldType
+  ),
+}));
+
+export const containerRelation = relations(containers, ({ one, many }) => ({
+  user: one(user, {
+    fields: [containers.userId],
+    references: [user.id]
+  }),
+
+  containerfields: many(containerfields)
+}));
+
+export const containerfieldRelation = relations(containerfields, ({ one }) => ({
+  containers: one(containers, {
+    fields: [containerfields.containerId],
+    references: [containers.id]
+  }),
+
+  user: one(user, {
+    fields: [containerfields.userId],
+    references: [user.id]
+  }),
+}))
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  containers: many(containers)
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -91,8 +163,3 @@ export const accountRelations = relations(account, ({ one }) => ({
     references: [user.id],
   }),
 }));
-
-export const test = pgTable("test", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull()
-})
