@@ -67,6 +67,7 @@ export const getAllContainers = async () => {
             where: eq(containers.userId, user!.id),
             orderBy: (containers, { desc }) => [desc(containers.createdAt)],
             columns: {
+                id: true,
                 name: true,
                 image: true,
                 createdAt: true

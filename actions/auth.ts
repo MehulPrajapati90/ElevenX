@@ -9,7 +9,7 @@ export const currentUser = async () => {
             headers: await headers(),
         });
 
-        if (user?.user) {
+        if (!user?.user) {
             return {
                 success: false,
                 message: "User Unauthenticated",
