@@ -82,6 +82,8 @@ export const fieldTypeEnum = pgEnum("field_type", [
   "MISCELLANEOUS",
 ]);
 
+export type FieldContentType = (typeof fieldTypeEnum.enumValues)[number];
+
 export const containers = pgTable("containers", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name"),

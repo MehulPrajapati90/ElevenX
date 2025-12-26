@@ -3,8 +3,9 @@
 import { currentUser } from "./auth";
 import { client } from "@/lib/db/pg-db";
 import { containers, containerfields } from "@/schema";
-import { CreateContainerContentType, CreateContainerType, DeleteContainer, DeleteContainerContent, GetContentbyContainerId, UpdateContainerContentType, UpdateContainerType } from "@/types";
+import { CreateContainerContentType, CreateContainerType, CreateContentBySpecificType, DeleteContainer, DeleteContainerContent, GetContentbyContainerId, GetContentFilteredByTypes, UpdateContainerContentType, UpdateContainerType } from "@/types";
 import { and, eq } from "drizzle-orm";
+import { FieldContentType } from "@/schema";
 
 // import {client} from "@/lib/db/neon-db";
 
@@ -67,6 +68,7 @@ export const getAllContainers = async () => {
             where: eq(containers.userId, user!.id),
             orderBy: (containers, { desc }) => [desc(containers.createdAt)],
             columns: {
+                id: true,
                 name: true,
                 image: true,
                 createdAt: true
@@ -214,7 +216,39 @@ export const getContentbyContainerId = async ({ containerId }: GetContentbyConta
         const getContent = await client.query.containerfields.findMany({
             where: and(
                 eq(containerfields.userId, user!.id),
-                eq(containers.userId, containerId)
+                eq(containerfields.containerId, containerId)
+            ),
+            orderBy: (containerfields, { desc }) => [desc(containerfields.createdAt)],
+            columns: {
+                id: true,
+                containerId: true,
+                content: true,
+                fieldType: true,
+                createdAt: true
+            },
+        });
+
+        return {
+            success: true,
+            message: "Content fetched successfully",
+            content: getContent
+        }
+    } catch (e) {
+        return {
+            success: false,
+            message: "failed to fetch container",
+        }
+    }
+};
+
+export const getContentFilteredByTypes = async ({ filterType }: GetContentFilteredByTypes) => {
+    try {
+        const { user } = await currentUser();
+
+        const getContent = await client.query.containerfields.findMany({
+            where: and(
+                eq(containerfields.userId, user!.id),
+                eq(containerfields.fieldType, filterType)
             ),
             orderBy: (containerfields, { desc }) => [desc(containerfields.createdAt)],
             columns: {
@@ -227,8 +261,8 @@ export const getContentbyContainerId = async ({ containerId }: GetContentbyConta
 
         return {
             success: true,
-            message: "Container deleted successfully",
-            containers: getContent
+            message: "Content fetched successfully",
+            content: getContent
         }
     } catch (e) {
         return {
@@ -236,4 +270,30 @@ export const getContentbyContainerId = async ({ containerId }: GetContentbyConta
             message: "failed to fetch container",
         }
     }
-};
+}
+
+export const createContentBySpecificType = async ({ filterType, containerId, content }: CreateContentBySpecificType) => {
+    try {
+        const { user } = await currentUser();
+
+        await client
+            .insert(containerfields)
+            .values({
+                containerId: containerId,
+                content: content,
+                fieldType: filterType,
+                userId: user?.id!,
+            })
+            .returning()
+
+        return {
+            success: true,
+            message: "Container Content created successfully"
+        }
+    } catch (e) {
+        return {
+            success: false,
+            message: "failed to create content",
+        }
+    }
+}
