@@ -215,10 +215,11 @@ export const getContentbyContainerId = async ({ containerId }: GetContentbyConta
         const getContent = await client.query.containerfields.findMany({
             where: and(
                 eq(containerfields.userId, user!.id),
-                eq(containers.userId, containerId)
+                eq(containerfields.containerId, containerId)
             ),
             orderBy: (containerfields, { desc }) => [desc(containerfields.createdAt)],
             columns: {
+                id: true,
                 containerId: true,
                 content: true,
                 fieldType: true,
@@ -228,8 +229,8 @@ export const getContentbyContainerId = async ({ containerId }: GetContentbyConta
 
         return {
             success: true,
-            message: "Container deleted successfully",
-            containers: getContent
+            message: "Content fetched successfully",
+            content: getContent
         }
     } catch (e) {
         return {

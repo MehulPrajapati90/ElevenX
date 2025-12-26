@@ -72,6 +72,7 @@ export const useCreateContainerContent = () => {
         mutationFn: async ({ content, type, containerId }: CreateContainerContentType) => await createContainerContent({ containerId, content, type }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['container'] })
+            queryClient.invalidateQueries({ queryKey: ['container-content'] })
         }
     })
 };

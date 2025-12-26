@@ -24,13 +24,13 @@ const Navbar = async () => {
     return (
         <div className='border-b border-neutral-800 w-full min-h-22 text-white flex justify-between items-center px-50'>
             <Link href={'/'} className='flex justify-center items-center gap-1'>
-                <Ratio className='' fill='' strokeWidth={"2px"} size={28} />
+                <Ratio className='' fill='' strokeWidth={"2px"} size={22} />
                 <div className='hidden md:block'>
-                    <h1 className='text-2xl font-sans font-semibold tracking-[-0.3px] mt-1'>Reliquary</h1>
+                    <h1 className='text-[20px] font-sans font-semibold tracking-[-0.3px] mt-1'>Reliquary</h1>
                 </div>
             </Link>
 
-            <div className='flex gap-8 font-sans text-[15px]'>
+            <div className='flex gap-6 font-sans text-[14px]'>
                 {NavItems.map(({ name }, idx) => (
                     <div key={idx} className='flex hover:underline cursor-pointer'>
                         {name}
@@ -47,7 +47,7 @@ const Navbar = async () => {
                     </div>
                 )}
                 <UserButton user={user!} />
-                <Button className='bg-white text-neutral-900 font-sans font-semibold tracking-[-0.5px] hover:bg-white/80 py-5' >
+                <Button className='bg-white text-neutral-900 font-sans font-semibold tracking-[-0.5px] hover:bg-white/80' >
                     Try for free
                 </Button>
                 <Button variant={"outline"} className='bg-foreground text-white font-sans font-normal px-10 tracking-[-0.5px] hover:bg-neutral-800/80 hover:text-white flex p-5'>

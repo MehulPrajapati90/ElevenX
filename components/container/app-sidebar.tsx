@@ -24,16 +24,30 @@ interface ContainerFormateType {
   url: string;
 }
 
+interface SideContentType {
+  title: string;
+  items: ContainerFormateType[];
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const { data: containers, isPending } = useGetAllContainer();
-  const [containerFormate, setContainerFormate] = React.useState<ContainerFormateType[]>();
+  const [containerFormate, setContainerFormate] = React.useState<SideContentType[]>([
+    {
+      title: "How it works",
+      items: [
+        {
+          title: "Architecture",
+          url: "/container/architecture",
+        },
+      ],
+    }
+  ]);
 
-  console.log(containerFormate)
+  React.useEffect(() => {
+    if (!containers?.containers) return
 
-  // This is sample data.
-  const data = {
-    navMain: [
+    setContainerFormate([
       {
         title: "How it works",
         items: [
@@ -45,20 +59,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         title: "Your Containers",
-        items: [],
+        items: containers.containers.map((m) => ({
+          title: m.name!,
+          url: `/container/${m.id}`,
+        })),
       },
-    ],
-  }
-
-  React.useEffect(() => {
-    setContainerFormate(
-      //@ts-ignore
-      containers?.containers?.map((m) => ({
-        title: m.name,
-        url: m.id
-      }))
-    )
-  }, [containers, isPending]);
+    ])
+  }, [containers])
 
   if (isPending) {
     return (
@@ -106,7 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item, idx: number) => (
+        {containerFormate?.map((item, idx: number) => (
           <SidebarGroup key={idx}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
