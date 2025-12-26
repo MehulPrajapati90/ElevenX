@@ -34,3 +34,13 @@ interface DeleteContainerContent {
 interface GetContentbyContainerId {
     containerId: string
 }
+
+interface GetContentFilteredByTypes {
+    filterType: fieldTypeEnum
+}
+
+interface CreateContentBySpecificType {
+    filterType: fieldTypeEnum;
+    containerId: string;
+    content: string;
+}
