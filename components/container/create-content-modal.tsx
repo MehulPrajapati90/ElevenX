@@ -11,13 +11,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useCreateContainerContent } from "@/hooks/query/container"
-import { Plus } from "lucide-react"
-import { FormEvent, useState } from "react"
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useCreateContainerContent } from "@/hooks/query/container";
+import { Plus, Trash } from "lucide-react";
+import { FormEvent, useState } from "react";
 import { toast } from "sonner";
-import { fieldTypeEnum } from "@/schema"
+import { fieldTypeEnum, FieldContentType } from "@/schema";
 
 import {
     Select,
@@ -28,6 +28,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import Hint from "../ui/hint"
+import Image from "next/image"
+import { OurFileRouter, UploadDropzone } from "@/lib/uploadThings";
 
 interface ContainerContentProps {
     containerId: string
@@ -36,7 +39,8 @@ interface ContainerContentProps {
 export function CreateContentModal({ containerId }: ContainerContentProps) {
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState<string>("");
-    const [type, setType] = useState("");
+    const [contentCover, setContentCover] = useState<string>("");
+    const [type, setType] = useState<FieldContentType | "">("");
 
     const { mutateAsync, isPending } = useCreateContainerContent();
 
@@ -60,7 +64,10 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
         } else {
             toast.error(res.message)
         }
+    };
 
+    const handleRemove = () => {
+        setContentCover("");
     }
 
     return (
@@ -83,7 +90,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                     <div className="grid gap-4 pt-8">
                         <div className="grid gap-3">
                             <Label htmlFor="name">Content Type</Label>
-                            <Select value={type} onValueChange={(value) => setType(value)}>
+                            <Select value={type} onValueChange={(value) => setType(value as unknown as "")}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select type of content" />
                                 </SelectTrigger>
@@ -98,15 +105,138 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="grid gap-3">
-                            <Label htmlFor="name">Container Content</Label>
-                            <Input
-                                id="name"
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                placeholder="content name"
-                            />
-                        </div>
+                        {type === "IMAGE" && (
+                            <div className="grid gap-3">
+                                <Label htmlFor="name">Container Cover</Label>
+                                {contentCover ? (
+                                    <div className="relative aspect-video rounded-xl overflow-hidden border border-white/15 bg-black/40">
+                                        <div className="absolute top-2 right-2 z-10">
+                                            <Hint asChild side="left" label="Remove thumbnail">
+                                                <Button type="button" onClick={handleRemove} disabled={isPending} className="h-auto w-auto p-1.5 bg-white/10 hover:bg-white/20">
+                                                    <Trash className="h-4 w-4" />
+                                                </Button>
+                                            </Hint>
+                                        </div>
+                                        <Image
+                                            fill
+                                            alt="Container Cover Image"
+                                            src={contentCover}
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-xl bg-white/5 outline-dashed outline-black/10 object-fill ">
+                                        <UploadDropzone<OurFileRouter, "ContentImageUpload">
+                                            endpoint="ContentImageUpload"
+                                            appearance={{
+                                                label: {
+                                                    color: "#000"
+                                                },
+                                                allowedContent: {
+                                                    color: "#c0c0c0"
+                                                },
+                                                button: {
+                                                    backgroundColor: "#4e7bff",
+                                                    padding: "8px 10px"
+                                                }
+                                            }}
+                                            onClientUploadComplete={(res) => {
+                                                setContentCover(res?.[0].url);
+                                            }}
+                                            onUploadError={console.error}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {type === "VIDEO" && (
+                            <div className="grid gap-3">
+                                <Label htmlFor="name">Container Cover</Label>
+                                {contentCover ? (
+                                    <div className="relative aspect-video rounded-xl overflow-hidden border border-white/15 bg-black/40">
+                                        <div className="absolute top-2 right-2 z-10">
+                                            <Hint asChild side="left" label="Remove thumbnail">
+                                                <Button type="button" onClick={handleRemove} disabled={isPending} className="h-auto w-auto p-1.5 bg-white/10 hover:bg-white/20">
+                                                    <Trash className="h-4 w-4" />
+                                                </Button>
+                                            </Hint>
+                                        </div>
+                                        <Image
+                                            fill
+                                            alt="Container Cover Image"
+                                            src={contentCover}
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-xl bg-white/5 outline-dashed outline-black/10 object-fill ">
+                                        <UploadDropzone<OurFileRouter, "ContentVideoUpload">
+                                            endpoint="ContentVideoUpload"
+                                            appearance={{
+                                                label: {
+                                                    color: "#000"
+                                                },
+                                                allowedContent: {
+                                                    color: "#c0c0c0"
+                                                },
+                                                button: {
+                                                    backgroundColor: "#4e7bff",
+                                                    padding: "8px 10px"
+                                                }
+                                            }}
+                                            onClientUploadComplete={(res) => {
+                                                setContentCover(res?.[0].url);
+                                            }}
+                                            onUploadError={console.error}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {type === "YOUTUBE" && (
+                            <div className="grid gap-3">
+                                <Label htmlFor="name">Container Content</Label>
+                                <Input
+                                    id="name"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="content name"
+                                />
+                            </div>
+                        )}
+                        {type === "MISCELLANEOUS" && (
+                            <div className="grid gap-3">
+                                <Label htmlFor="name">Container Content</Label>
+                                <Input
+                                    id="name"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="content name"
+                                />
+                            </div>
+                        )}
+                        {type === "INSTAGRAM" && (
+                            <div className="grid gap-3">
+                                <Label htmlFor="name">Container Content</Label>
+                                <Input
+                                    id="name"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="content name"
+                                />
+                            </div>
+                        )}
+                        {type === "TWITTER" && (
+                            <div className="grid gap-3">
+                                <Label htmlFor="name">Container Content</Label>
+                                <Input
+                                    id="name"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="content name"
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <DialogFooter className="pt-5">
@@ -122,4 +252,4 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
             </DialogContent>
         </Dialog>
     )
-}
+};

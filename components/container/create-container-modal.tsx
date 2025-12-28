@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogClose,
@@ -10,28 +10,32 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useCreateContainer } from "@/hooks/query/container"
-import { Plus } from "lucide-react"
-import { FormEvent, useState } from "react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useCreateContainer } from "@/hooks/query/container";
+import { Plus, Trash } from "lucide-react";
+import { FormEvent, useState } from "react";
+import { OurFileRouter, UploadDropzone } from "@/lib/uploadThings";
 import { toast } from "sonner";
+import Image from "next/image";
+import Hint from "../ui/hint";
 
 export function CreateContainerModel() {
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState<string>("");
+    const [containerCover, setContainerCover] = useState<string>("");
     const { mutateAsync, isPending } = useCreateContainer();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!title.trim()) {
-            toast.error("Container name is required")
+            toast.error("Container field are required")
             return
         }
 
-        const res = await mutateAsync({ name: title });
+        const res = await mutateAsync({ name: title, image: containerCover });
 
         console.log(res)
 
@@ -42,7 +46,10 @@ export function CreateContainerModel() {
         } else {
             toast.error(res.message)
         }
+    }
 
+    const handleRemove = () => {
+        setContainerCover("");
     }
 
     return (
@@ -62,7 +69,7 @@ export function CreateContainerModel() {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-4 pt-5">
+                    <div className="grid gap-4 pt-8">
                         <div className="grid gap-3">
                             <Label htmlFor="name">Container Name</Label>
                             <Input
@@ -71,6 +78,48 @@ export function CreateContainerModel() {
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="container name"
                             />
+                        </div>
+                        <div className="grid gap-3">
+                            <Label htmlFor="name">Container Cover</Label>
+                            {containerCover ? (
+                                <div className="relative aspect-video rounded-xl overflow-hidden border border-white/15 bg-black/40">
+                                    <div className="absolute top-2 right-2 z-10">
+                                        <Hint asChild side="left" label="Remove thumbnail">
+                                            <Button type="button" onClick={handleRemove} disabled={isPending} className="h-auto w-auto p-1.5 bg-white/10 hover:bg-white/20">
+                                                <Trash className="h-4 w-4" />
+                                            </Button>
+                                        </Hint>
+                                    </div>
+                                    <Image
+                                        fill
+                                        alt="Container Cover Image"
+                                        src={containerCover}
+                                        className="object-cover"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="rounded-xl bg-white/5 outline-dashed outline-black/10 object-fill ">
+                                    <UploadDropzone<OurFileRouter, "ContainerCoverImgUpload">
+                                        endpoint="ContainerCoverImgUpload"
+                                        appearance={{
+                                            label: {
+                                                color: "#000"
+                                            },
+                                            allowedContent: {
+                                                color: "#c0c0c0"
+                                            },
+                                            button: {
+                                                backgroundColor: "#4e7bff",
+                                                padding: "8px 10px"
+                                            }
+                                        }}
+                                        onClientUploadComplete={(res) => {
+                                            setContainerCover(res?.[0].url);
+                                        }}
+                                        onUploadError={console.error}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 
