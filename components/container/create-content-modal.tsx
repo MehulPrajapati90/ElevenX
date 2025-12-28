@@ -81,7 +81,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Create Container</DialogTitle>
+                        <DialogTitle>Create Content</DialogTitle>
                         <DialogDescription className="text-[13px] font-sans tracking-[-0.1px]">
                             Make changes to your container. Click save when you&apos;re done.
                         </DialogDescription>

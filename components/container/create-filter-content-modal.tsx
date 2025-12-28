@@ -105,7 +105,7 @@ export function CreateFilterContentModal({ contentType }: ContainerContentProps)
                                             </SelectItem>
                                             ))} */}
                                         <SelectItem value={contentType}>
-                                            {contentType.toUpperCase()}
+                                            {contentType.toLocaleLowerCase()}
                                         </SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
