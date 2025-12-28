@@ -1,4 +1,4 @@
-import { fieldTypeEnum } from "@/schema";
+import { FieldContentType, fieldTypeEnum } from "@/schema";
 
 interface CreateContainerType {
     name: string;
@@ -40,7 +40,7 @@ interface GetContentFilteredByTypes {
 }
 
 interface CreateContentBySpecificType {
-    filterType: fieldTypeEnum;
+    filterType: FieldContentType;
     containerId: string;
     content: string;
 }

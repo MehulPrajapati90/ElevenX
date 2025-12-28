@@ -9,8 +9,6 @@ import Link from 'next/link';
 const ContainerContent = ({ containerId }: { containerId: string }) => {
     const { data: content, isPending } = useGetContentbyContainerId({ containerId });
 
-    console.log(content)
-
     return (
         <div className="grid auto-rows-min gap-4 md:grid-cols-4 h-45">
 
@@ -22,7 +20,7 @@ const ContainerContent = ({ containerId }: { containerId: string }) => {
             {
                 content?.content?.map((m, idx: number) => (
                     <div key={idx} className="bg-muted/50 aspect-video rounded-xl flex justify-center items-center">
-                        <Link href={`${m.containerId}/${m.fieldType}`}>
+                        <Link href={`/container/content/${m.fieldType}`}>
                             <Link2 size={18} /></Link>
                         <ContentViewModal content={m.content!} contentType={m.fieldType!} createdAt={m.createdAt} />
                     </div>

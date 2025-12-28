@@ -1,13 +1,13 @@
 "use server";
 
 import { currentUser } from "./auth";
-import { client } from "@/lib/db/pg-db";
+// import { client } from "@/lib/db/pg-db";
 import { containers, containerfields } from "@/schema";
 import { CreateContainerContentType, CreateContainerType, CreateContentBySpecificType, DeleteContainer, DeleteContainerContent, GetContentbyContainerId, GetContentFilteredByTypes, UpdateContainerContentType, UpdateContainerType } from "@/types";
 import { and, eq } from "drizzle-orm";
 import { FieldContentType } from "@/schema";
 
-// import {client} from "@/lib/db/neon-db";
+import { client } from "@/lib/db/neon-db";
 
 export const createContainer = async ({ image, name }: CreateContainerType) => {
     try {
@@ -153,7 +153,7 @@ export const updateContainerContent = async ({ type, content, containerContentId
     } catch (e) {
         return {
             success: false,
-            message: "failed to delete container",
+            message: "failed to update container",
         }
     }
 };
@@ -291,9 +291,37 @@ export const createContentBySpecificType = async ({ filterType, containerId, con
             message: "Container Content created successfully"
         }
     } catch (e) {
+        console.log(e)
         return {
             success: false,
             message: "failed to create content",
+        }
+    }
+}
+
+export const getallContent = async () => {
+    try {
+        const { user } = await currentUser();
+
+        const getcontent = await client.query.containerfields.findMany({
+            columns: {
+                containerId: true,
+                content: true,
+                fieldType: true,
+                id: true,
+                createdAt: true
+            }
+        });
+
+        return {
+            success: true,
+            message: "fetch content successfully",
+            content: getcontent,
+        }
+    } catch (e) {
+        return {
+            success: false,
+            message: "failed to fetch content",
         }
     }
 }

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
-// import { client } from "./db/neon-db";
-import { client } from "./db/pg-db";
+import { client } from "./db/neon-db";
+// import { client } from "./db/pg-db";
 import * as schema from "@/schema";
 
 export const auth = betterAuth({

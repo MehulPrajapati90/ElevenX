@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateContainerContent } from "@/hooks/query/container";
+import { useCreateContentBySpecificType, useGetAllContainer } from "@/hooks/query/container";
 import { Plus, Trash } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
-import { fieldTypeEnum, FieldContentType } from "@/schema";
+import { FieldContentType } from "@/schema";
 
 import {
     Select,
@@ -33,26 +33,29 @@ import Image from "next/image"
 import { OurFileRouter, UploadDropzone } from "@/lib/uploadThings";
 
 interface ContainerContentProps {
-    containerId: string
+    contentType: FieldContentType
 }
 
-export function CreateContentModal({ containerId }: ContainerContentProps) {
+export function CreateFilterContentModal({ contentType }: ContainerContentProps) {
+    const { data, isPending: containerIsPending } = useGetAllContainer();
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState<string>("");
-    const [contentCover, setContentCover] = useState<string>("");
-    const [type, setType] = useState<FieldContentType | "">("");
+    const [type, setType] = useState<FieldContentType | "">(contentType.toUpperCase() as FieldContentType);
+    const [containerId, setContainerId] = useState<string>("");
 
-    const { mutateAsync, isPending } = useCreateContainerContent();
+    const { mutateAsync, isPending } = useCreateContentBySpecificType();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        console.log(type, containerId, content)
 
         if (!type.trim() || !content.trim()) {
             toast.error("Container name is required")
             return
         }
 
-        const res = await mutateAsync({ containerId: containerId, content: content, type: type });
+        const res = await mutateAsync({ containerId: containerId, content: content, filterType: contentType.toUpperCase() as unknown as FieldContentType });
 
         console.log(res)
 
@@ -67,7 +70,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
     };
 
     const handleRemove = () => {
-        setContentCover("");
+        setContent("");
     }
 
     return (
@@ -81,7 +84,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Create Content</DialogTitle>
+                        <DialogTitle>Create Container</DialogTitle>
                         <DialogDescription className="text-[13px] font-sans tracking-[-0.1px]">
                             Make changes to your container. Click save when you&apos;re done.
                         </DialogDescription>
@@ -90,15 +93,35 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                     <div className="grid gap-4 pt-8">
                         <div className="grid gap-3">
                             <Label htmlFor="name">Content Type</Label>
-                            <Select value={type} onValueChange={(value) => setType(value as unknown as "")}>
+                            <Select value={contentType}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select type of content" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {fieldTypeEnum?.enumValues?.map((m) => (
+                                        {/* {fieldTypeEnum?.enumValues?.map((m) => (
                                             <SelectItem key={m} value={m}>
                                                 {m.toLocaleLowerCase()}
+                                            </SelectItem>
+                                            ))} */}
+                                        <SelectItem value={contentType}>
+                                            {contentType.toLocaleLowerCase()}
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid gap-3">
+                            <Label htmlFor="name">Select Container</Label>
+                            <Select value={containerId} onValueChange={(value) => setContainerId(value)}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select the container" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {data?.containers?.map((m, idx: number) => (
+                                            <SelectItem key={idx} value={m.id}>
+                                                {m.name}
                                             </SelectItem>
                                         ))}
                                     </SelectGroup>
@@ -108,7 +131,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                         {type === "IMAGE" && (
                             <div className="grid gap-3">
                                 <Label htmlFor="name">Container Cover</Label>
-                                {contentCover ? (
+                                {content ? (
                                     <div className="relative aspect-video rounded-xl overflow-hidden border border-white/15 bg-black/40">
                                         <div className="absolute top-2 right-2 z-10">
                                             <Hint asChild side="left" label="Remove thumbnail">
@@ -120,7 +143,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                                         <Image
                                             fill
                                             alt="Container Cover Image"
-                                            src={contentCover}
+                                            src={content}
                                             className="object-cover"
                                         />
                                     </div>
@@ -151,7 +174,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                                                 },
                                             }}
                                             onClientUploadComplete={(res) => {
-                                                setContentCover(res?.[0].url);
+                                                setContent(res?.[0].url);
                                             }}
                                             onUploadError={console.error}
                                         />
@@ -162,7 +185,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                         {type === "VIDEO" && (
                             <div className="grid gap-3">
                                 <Label htmlFor="name">Container Cover</Label>
-                                {contentCover ? (
+                                {content ? (
                                     <div className="relative aspect-video rounded-xl overflow-hidden border border-white/15 bg-black/40">
                                         <div className="absolute top-2 right-2 z-10">
                                             <Hint asChild side="left" label="Remove thumbnail">
@@ -171,12 +194,13 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                                                 </Button>
                                             </Hint>
                                         </div>
-                                        <Image
-                                            fill
-                                            alt="Container Cover Image"
-                                            src={contentCover}
-                                            className="object-cover"
-                                        />
+                                        <div className="aspect-video w-full overflow-hidden rounded-lg">
+                                            <video
+                                                src={content}
+                                                className="w-full h-full object-cover"
+                                                controls
+                                            />
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="relative aspect-video w-full rounded-xl bg-white/5 border-2 border-dashed border-black/20
@@ -205,7 +229,7 @@ export function CreateContentModal({ containerId }: ContainerContentProps) {
                                                 },
                                             }}
                                             onClientUploadComplete={(res) => {
-                                                setContentCover(res?.[0].url);
+                                                setContent(res?.[0].url);
                                             }}
                                             onUploadError={console.error}
                                         />

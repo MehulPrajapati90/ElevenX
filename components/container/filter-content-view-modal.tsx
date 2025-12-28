@@ -13,10 +13,11 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { CheckCheck, Copy, Star } from "lucide-react"
+import { CheckCheck, Copy } from "lucide-react"
 import { useState } from "react"
 import { Input } from "../ui/input";
 import TwitterEmbed from "./tweet-component";
+import Image from "next/image";
 
 interface ContentViewModalProps {
     content: string;
@@ -24,7 +25,7 @@ interface ContentViewModalProps {
     createdAt: Date;
 }
 
-const ContentViewModal = ({ content, contentType, createdAt }: ContentViewModalProps) => {
+const FilterContentViewModal = ({ content, contentType, createdAt }: ContentViewModalProps) => {
     const [copy, setCopy] = useState<boolean>(false)
 
     const handleCopy = (content: string) => {
@@ -62,8 +63,8 @@ const ContentViewModal = ({ content, contentType, createdAt }: ContentViewModalP
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <div className="flex justify-center items-center size-6 rounded-full">
-                    <Star size={18} strokeWidth={1.8} className="text-black" />
+                <div className="bg-muted/10 aspect-video rounded-[10px] flex justify-center items-center w-full h-15 hover:bg-neutral-100 duration-200 border">
+                    {contentType.toLocaleLowerCase()}
                 </div>
             </DialogTrigger>
 
@@ -136,20 +137,18 @@ const ContentViewModal = ({ content, contentType, createdAt }: ContentViewModalP
                         {/* TODO */}
                         {contentType === "VIDEO" && (
                             <>
-                                {/* <div className="w-full flex flex-col items-start justify-center gap-1">
+                                <div className="w-full flex flex-col items-start justify-center gap-1">
                                     <Label className="text-[13px] font-sans font-medium">Content</Label>
-                                    <div className="w-full flex justify-center items-center gap-1">
-                                        <Input
-                                            id="name"
-                                            value={content}
-                                            onChange={() => content}
-                                            className="font-sans"
+
+                                    {/* TO:CHECK */}
+                                    <div className="aspect-video w-full overflow-hidden rounded-lg">
+                                        <video
+                                            src={content}
+                                            className="w-full h-full object-cover"
+                                            controls
                                         />
-                                        <div onClick={() => handleCopy(content)} className="p-2 bg-neutral-200 rounded-[6px]">
-                                            {!copy ? <Copy size={15} /> : <CheckCheck size={15} />}
-                                        </div>
                                     </div>
-                                </div> */}
+                                </div>
 
                                 <div className="w-full flex flex-col justify-center items-start text-[12px] font-mono tracking-tight pt-2 gap-1">
                                     <div className="px-2 py-1 bg-neutral-300 text-neutral-800 rounded-[3px]">type: {contentType.toLocaleLowerCase()}</div>
@@ -164,15 +163,7 @@ const ContentViewModal = ({ content, contentType, createdAt }: ContentViewModalP
                                 <div className="w-full flex flex-col items-start justify-center gap-1">
                                     <Label className="text-[13px] font-sans font-medium">Content</Label>
                                     <div className="w-full flex justify-center items-center gap-1">
-                                        <Input
-                                            id="name"
-                                            value={content}
-                                            onChange={() => content}
-                                            className="font-sans"
-                                        />
-                                        <div onClick={() => handleCopy(content)} className="p-2 bg-neutral-200 rounded-[6px]">
-                                            {!copy ? <Copy size={15} /> : <CheckCheck size={15} />}
-                                        </div>
+                                        <Image width={20} height={20} sizes="20" alt="content" src={content} className="w-full min-h-full" />
                                     </div>
                                 </div>
 
@@ -233,4 +224,4 @@ const ContentViewModal = ({ content, contentType, createdAt }: ContentViewModalP
     )
 }
 
-export default ContentViewModal;
+export default FilterContentViewModal;

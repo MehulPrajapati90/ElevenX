@@ -1,4 +1,4 @@
-import { createContainer, createContainerContent, createContentBySpecificType, deleteContainer, deleteContainerContent, getAllContainers, getContentbyContainerId, getContentFilteredByTypes, updateContainer, updateContainerContent } from "@/actions/container";
+import { createContainer, createContainerContent, createContentBySpecificType, deleteContainer, deleteContainerContent, getAllContainers, getallContent, getContentbyContainerId, getContentFilteredByTypes, updateContainer, updateContainerContent } from "@/actions/container";
 import { CreateContainerContentType, CreateContainerType, CreateContentBySpecificType, DeleteContainer, DeleteContainerContent, GetContentbyContainerId, GetContentFilteredByTypes, UpdateContainerContentType, UpdateContainerType } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -91,13 +91,20 @@ export const useGetContentByFilteredTypes = ({ filterType }: GetContentFilteredB
     })
 }
 
-export const useCreateContentBySpecificType = ({ filterType, content, containerId }: CreateContentBySpecificType) => {
+export const useCreateContentBySpecificType = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: () => createContentBySpecificType({ containerId, content, filterType }),
+        mutationFn: ({ filterType, content, containerId }: CreateContentBySpecificType) => createContentBySpecificType({ containerId, content, filterType }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['filter-content'] })
         }
+    })
+}
+
+export const useGetallContent = () => {
+    return useQuery({
+        queryKey: ['filter-content'],
+        queryFn: async () => await getallContent()
     })
 }
