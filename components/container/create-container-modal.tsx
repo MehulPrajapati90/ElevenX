@@ -98,20 +98,30 @@ export function CreateContainerModel() {
                                     />
                                 </div>
                             ) : (
-                                <div className="rounded-xl bg-white/5 outline-dashed outline-black/10 object-fill ">
+                                <div className="relative aspect-video w-full rounded-xl bg-white/5 border-2 border-dashed border-black/20
+                flex items-center justify-center overflow-hidden
+                hover:border-black/40 transition-colors">
                                     <UploadDropzone<OurFileRouter, "ContainerCoverImgUpload">
                                         endpoint="ContainerCoverImgUpload"
                                         appearance={{
+                                            container: {
+                                                width: "100%",
+                                                height: "100%",
+                                            },
                                             label: {
-                                                color: "#000"
+                                                color: "#000",
+                                                fontSize: "14px",
+                                                fontWeight: "500",
                                             },
                                             allowedContent: {
-                                                color: "#c0c0c0"
+                                                color: "#9ca3af",
+                                                fontSize: "12px",
                                             },
                                             button: {
                                                 backgroundColor: "#4e7bff",
-                                                padding: "8px 10px"
-                                            }
+                                                padding: "8px 14px",
+                                                borderRadius: "8px",
+                                            },
                                         }}
                                         onClientUploadComplete={(res) => {
                                             setContainerCover(res?.[0].url);
