@@ -153,7 +153,7 @@ export const updateContainerContent = async ({ type, content, containerContentId
     } catch (e) {
         return {
             success: false,
-            message: "failed to delete container",
+            message: "failed to update container",
         }
     }
 };
@@ -291,9 +291,37 @@ export const createContentBySpecificType = async ({ filterType, containerId, con
             message: "Container Content created successfully"
         }
     } catch (e) {
+        console.log(e)
         return {
             success: false,
             message: "failed to create content",
+        }
+    }
+}
+
+export const getallContent = async () => {
+    try {
+        const { user } = await currentUser();
+
+        const getcontent = await client.query.containerfields.findMany({
+            columns: {
+                containerId: true,
+                content: true,
+                fieldType: true,
+                id: true,
+                createdAt: true
+            }
+        });
+
+        return {
+            success: true,
+            message: "fetch content successfully",
+            content: getcontent,
+        }
+    } catch (e) {
+        return {
+            success: false,
+            message: "failed to fetch content",
         }
     }
 }

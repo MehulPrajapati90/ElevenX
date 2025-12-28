@@ -13,7 +13,7 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar"
-import { GalleryVerticalEnd, Slice } from "lucide-react"
+import { GalleryVerticalEnd } from "lucide-react"
 import { fieldTypeEnum } from "@/schema";
 
 export function ContentSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -43,7 +43,7 @@ export function ContentSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                             {fieldTypeEnum.enumValues?.map((item, idx: number) => (
                                 <SidebarMenuItem key={item}>
                                     <SidebarMenuButton asChild>
-                                        <a href={item}>{item[0]+item.slice(1).toLocaleLowerCase()}</a>
+                                        <a href={item.toLocaleLowerCase()}>{item[0] + item.slice(1).toLocaleLowerCase()}</a>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
